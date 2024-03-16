@@ -10,11 +10,17 @@ func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	mux.HandleFunc("/{$}", app.home)
-	mux.HandleFunc("/snippet/view", app.snippetView)
-	mux.HandleFunc("POST /snippet/create", app.snippetCreate)
+	mux.HandleFunc("GET /{$}", app.home)
+	mux.HandleFunc("GET /snippet/view/{id}", app.snippetView)
+	mux.HandleFunc("GET /snippet/create", app.snippetCreate)
+	mux.HandleFunc("POST /snippet/create", app.snippetCreatePost)
+
+	// catch all
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		app.notFound(w)
+	})
 
 	// middleware to be applied to every request
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
