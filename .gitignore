@@ -24,3 +24,5 @@ go.work
 
 # tls certificate
 tls/
+
+.DS_Store
