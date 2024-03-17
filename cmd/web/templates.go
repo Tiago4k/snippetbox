@@ -2,7 +2,6 @@ package main
 
 import (
 	"html/template"
-	"net/http"
 	"path/filepath"
 	"time"
 
@@ -10,11 +9,21 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Snippet     *models.Snippet
-	Snippets    []*models.Snippet
-	Form        any
-	Flash       string
+	CurrentYear     int
+	Snippet         *models.Snippet
+	Snippets        []*models.Snippet
+	Form            any
+	Flash           string
+	IsAuthenticated bool
+	CSRFToken       string
+}
+
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -46,19 +55,4 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		cache[name] = ts
 	}
 	return cache, nil
-}
-
-func (app *application) newTemplateData(r *http.Request) *templateData {
-	return &templateData{
-		CurrentYear: time.Now().Year(),
-		Flash:       app.sessionManager.PopString(r.Context(), "flash"),
-	}
-}
-
-func humanDate(t time.Time) string {
-	return t.Format("02 Jan 2006 at 15:04")
-}
-
-var functions = template.FuncMap{
-	"humanDate": humanDate,
 }
