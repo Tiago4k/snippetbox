@@ -223,3 +223,15 @@ func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
 func ping(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
+
+func (app *application) about(w http.ResponseWriter, r *http.Request) {
+	snippets, err := app.snippets.Latest()
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	data := app.newTemplateData(r)
+	data.Snippets = snippets
+
+	app.render(w, http.StatusOK, "about.tmpl.html", data)
+}
